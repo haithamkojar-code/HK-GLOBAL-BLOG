@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HK Global - Secure Admin Panel</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef2f7; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .admin-container { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        h2 { color: #1a73e8; text-align: center; margin-bottom: 25px; font-size: 1.8em; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #555; }
+        input, textarea, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        
+        /* تمييز خانة الأمان بلون مختلف */
+        #adminPassword { border: 2px solid #1a73e8; background: #f0f7ff; }
+        
+        button { background: #1a73e8; color: white; border: none; padding: 15px; width: 100%; margin-top: 25px; cursor: pointer; border-radius: 10px; font-size: 1.1em; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #1557b0; transform: translateY(-2px); }
+        .status-msg { text-align: center; margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <h2>🚀 HK Editor Hub</h2>
+
+    <label style="color: #1a73e8;">🛡️ Security Access Code</label>
+    <input type="password" id="adminPassword" placeholder="Enter security code to publish...">
+    
+    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+    <label>Article Title / العنوان</label>
+    <input type="text" id="title" placeholder="Enter title here...">
+
+    <label>Language / اللغة</label>
+    <select id="lang">
+        <option value="en">English (Global)</option>
+        <option value="sv">Svenska (Sweden)</option>
+        <option value="ar">العربية (Arabic)</option>
+    </select>
+
+    <label>Category / القسم</label>
+    <select id="category">
+        <option value="Politics">Politics / سياسة</option>
+        <option value="Economy">Economy / اقتصاد</option>
+        <option value="Marketing">Marketing / تسويق</option>
+        <option value="Family">Family / حياة وعائلة</option>
+    </select>
+
+    <label>Cover Image URL / رابط الصورة</label>
+    <input type="text" id="imageUrl" placeholder="Paste image link here...">
+
+    <label>Content / محتوى المقال</label>
+    <textarea id="content" rows="10" placeholder="Write your thoughts here..."></textarea>
+
+    <button onclick="publishArticle()">PUBLISH ARTICLE</button>
+    <div id="status" class="status-msg"></div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJDyKosoysPzOjl-9DqaZIDEg8GRPfXzQ",
+        authDomain: "hk-blog-3ed96.firebaseapp.com",
+        projectId: "hk-blog-3ed96",
+        storageBucket: "hk-blog-3ed96.firebasestorage.app",
+        messagingSenderId: "339658398793",
+        appId: "1:339658398793:web:e38a09f83fd01c2e773398",
+        databaseURL: "https://hk-blog-3ed96-default-rtdb.firebaseio.com"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function publishArticle() {
+        const title = document.getElementById('title').value;
+        const lang = document.getElementById('lang').value;
+        const category = document.getElementById('category').value;
+        const imageUrl = document.getElementById('imageUrl').value;
+        const content = document.getElementById('content').value;
+        const enteredPassword = document.getElementById('adminPassword').value;
+        const status = document.getElementById('status');
+
+        // كود الأمان الذي حددته أنت
+        const secureCode = "Sabah19920701";
+
+        // التحقق من كود الأمان أولاً
+        if (enteredPassword !== secureCode) {
+            alert("❌ Access Denied: Incorrect Security Code!");
+            status.innerHTML = "Incorrect Security Code!";
+            status.style.color = "#c0392b";
+            return; // توقف عن النشر
+        }
+
+        if(title && content) {
+            status.innerHTML = "Sending to the cloud...";
+            status.style.color = "#f39c12";
+
+            const newPostRef = database.ref('posts').push();
+            newPostRef.set({
+                title: title,
+                lang: lang,
+                category: category,
+                imageUrl: imageUrl,
+                content: content,
+                date: new Date().toLocaleDateString('en-GB')
+            }).then(() => {
+                status.innerHTML = "🎉 Article Published Successfully!";
+                status.style.color = "#27ae60";
+                // مسح البيانات بعد النشر
+                document.getElementById('title').value = '';
+                document.getElementById('content').value = '';
+                document.getElementById('imageUrl').value = '';
+                document.getElementById('adminPassword').value = '';
+            }).catch(err => {
+                status.innerHTML = "❌ Error: " + err.message;
+                status.style.color = "#c0392b";
+            });
+        } else {
+            alert("Please fill in the title and content!");
+        }
+    }
+</script>
+
+</body>
+</html>
