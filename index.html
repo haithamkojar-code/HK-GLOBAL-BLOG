@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HK Global Blog</title>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: #f4f4f9; color: #222; line-height: 1.6; }
         header { background: #fff; padding: 25px; border-bottom: 3px solid #1a73e8; text-align: center; position: sticky; top: 0; z-index: 1000; }
@@ -17,35 +15,26 @@
         .container { max-width: 850px; margin: 40px auto; padding: 0 20px; }
         .post-card { background: white; border-radius: 15px; padding: 30px; margin-bottom: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
         .post-card img { width: 100%; border-radius: 10px; margin-bottom: 20px; }
-        .post-card h2 { color: #1a73e8; margin-top: 0; }
         .tag { background: #e8f0fe; padding: 5px 15px; border-radius: 20px; font-size: 0.85em; color: #1967d2; font-weight: bold; }
         footer { background: #fff; padding: 40px; border-top: 1px solid #eee; text-align: center; margin-top: 60px; color: #666; }
         footer a { color: #1a73e8; text-decoration: none; margin: 0 15px; }
         [dir="rtl"] { text-align: right; }
-        [dir="ltr"] { text-align: left; }
     </style>
 </head>
 <body>
-
 <header>
     <div class="site-title">HK GLOBAL BLOG</div>
     <div class="lang-switch">
         <button onclick="changeLang('en')">English</button>
-        <button onclick="changeLang('sv')">Swedish</button>
-        <button onclick="changeLang('ar')">Arabic</button>
+        <button onclick="changeLang('sv')">Svenska</button>
+        <button onclick="changeLang('ar')">العربية</button>
     </div>
 </header>
-
-<div class="container" id="postsContainer">
-    <p style="text-align:center; color: #888;">Fetching the latest updates...</p>
-</div>
-
+<div class="container" id="postsContainer"><p style="text-align:center;">Loading updates...</p></div>
 <footer>
     <p>© 2026 HK Global Blog - All Rights Reserved</p>
-    <a href="legal.html">Legal Notice</a> | 
-    <a href="privacy.html">Privacy Policy</a>
+    <a href="legal.html">Legal Notice</a> | <a href="privacy.html">Privacy Policy</a>
 </footer>
-
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyAJDyKosoysPzOjl-9DqaZIDEg8GRPfXzQ",
@@ -54,27 +43,23 @@
         storageBucket: "hk-blog-3ed96.firebasestorage.app",
         messagingSenderId: "339658398793",
         appId: "1:339658398793:web:e38a09f83fd01c2e773398",
+        measurementId: "G-FSB1QBLZM7",
         databaseURL: "https://hk-blog-3ed96-default-rtdb.firebaseio.com"
     };
-
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-
     function changeLang(lang) {
         const doc = document.getElementById('mainHtml');
         doc.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         doc.lang = lang;
         loadPosts(lang);
     }
-
     function loadPosts(lang) {
         const container = document.getElementById('postsContainer');
-        container.innerHTML = '<p style="text-align:center;">Loading posts...</p>';
-        
         database.ref('posts').orderByChild('lang').equalTo(lang).on('value', (snapshot) => {
             container.innerHTML = '';
             if (!snapshot.exists()) {
-                container.innerHTML = `<p style="text-align:center;">No posts available in this language yet.</p>`;
+                container.innerHTML = '<p style="text-align:center;">No articles available.</p>';
                 return;
             }
             snapshot.forEach((child) => {
@@ -85,11 +70,8 @@
                         <h2>${post.title}</h2>
                         ${post.imageUrl ? `<img src="${post.imageUrl}">` : ''}
                         <p style="white-space: pre-wrap;">${post.content}</p>
-                        <div style="margin-top:20px; font-size: 0.85em; color: #999; border-top: 1px solid #eee; padding-top: 10px;">
-                           📅 Published: ${post.date}
-                        </div>
-                    </article>
-                `;
+                        <div style="font-size: 0.85em; color: #999; border-top: 1px solid #eee; padding-top: 10px;">📅 ${post.date}</div>
+                    </article>`;
             });
         });
     }
