@@ -3,39 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HK Global Blog</title>
+    <title>HK GLOBAL BLOG</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: #f4f4f9; color: #222; line-height: 1.6; }
         header { background: #fff; padding: 25px; border-bottom: 3px solid #1a73e8; text-align: center; position: sticky; top: 0; z-index: 1000; }
         .site-title { font-size: 2.2em; font-weight: bold; color: #1a73e8; letter-spacing: 1px; margin-bottom: 15px; }
-        .lang-switch button { background: #f8f9fa; border: 1px solid #ddd; padding: 10px 20px; margin: 0 5px; cursor: pointer; border-radius: 30px; font-weight: 500; transition: 0.3s; }
+        .lang-switch button { background: #f8f9fa; border: 1px solid #ddd; padding: 10px 20px; margin: 0 5px; cursor: pointer; border-radius: 30px; font-weight: bold; transition: 0.3s; }
         .lang-switch button:hover { background: #1a73e8; color: white; border-color: #1a73e8; }
-        .container { max-width: 850px; margin: 40px auto; padding: 0 20px; }
-        .post-card { background: white; border-radius: 15px; padding: 30px; margin-bottom: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .post-card img { width: 100%; border-radius: 10px; margin-bottom: 20px; }
-        .tag { background: #e8f0fe; padding: 5px 15px; border-radius: 20px; font-size: 0.85em; color: #1967d2; font-weight: bold; }
-        footer { background: #fff; padding: 40px; border-top: 1px solid #eee; text-align: center; margin-top: 60px; color: #666; }
-        footer a { color: #1a73e8; text-decoration: none; margin: 0 15px; }
-        [dir="rtl"] { text-align: right; }
+        main { max-width: 900px; margin: 30px auto; padding: 20px; }
+        .post-card { background: white; padding: 25px; margin-bottom: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        .post-card h2 { margin-top: 0; color: #333; font-size: 1.8em; }
+        .post-card img { max-width: 100%; border-radius: 10px; margin: 15px 0; display: block; }
+        .tag { background: #e8f0fe; color: #1a73e8; padding: 5px 12px; border-radius: 5px; font-size: 0.85em; font-weight: bold; text-transform: uppercase; }
+        footer { text-align: center; padding: 40px; color: #777; font-size: 0.9em; background: #fff; border-top: 1px solid #eee; margin-top: 50px; }
+        footer a { color: #1a73e8; text-decoration: none; margin: 0 10px; }
     </style>
 </head>
 <body>
+
 <header>
     <div class="site-title">HK GLOBAL BLOG</div>
     <div class="lang-switch">
-        <button onclick="changeLang('en')">English</button>
-        <button onclick="changeLang('sv')">Svenska</button>
-        <button onclick="changeLang('ar')">العربية</button>
+        <button onclick="switchLang('en')">English</button>
+        <button onclick="switchLang('ar')">العربية</button>
+        <button onclick="switchLang('sv')">Svenska</button>
     </div>
 </header>
-<div class="container" id="postsContainer"><p style="text-align:center;">Loading updates...</p></div>
+
+<main id="postsContainer">
+    </main>
+
 <footer>
-    <p>© 2026 HK Global Blog - All Rights Reserved</p>
+    <p>&copy; 2026 HK GLOBAL BLOG | Analytical Insights</p>
     <a href="legal.html">Legal Notice</a> | <a href="privacy.html">Privacy Policy</a>
 </footer>
+
 <script>
+    // إعدادات Firebase المحدثة برابط أوروبا
     const firebaseConfig = {
         apiKey: "AIzaSyAJDyKosoysPzOjl-9DqaZIDEg8GRPfXzQ",
         authDomain: "hk-blog-3ed96.firebaseapp.com",
@@ -43,38 +51,55 @@
         storageBucket: "hk-blog-3ed96.firebasestorage.app",
         messagingSenderId: "339658398793",
         appId: "1:339658398793:web:e38a09f83fd01c2e773398",
-        measurementId: "G-FSB1QBLZM7",
-        databaseURL: "https://hk-blog-3ed96-default-rtdb.firebaseio.com"
+        databaseURL: "https://hk-blog-3ed96-default-rtdb.europe-west1.firebasedatabase.app/"
     };
+    
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    function changeLang(lang) {
+
+    function switchLang(lang) {
         const doc = document.getElementById('mainHtml');
-        doc.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-        doc.lang = lang;
+        if(lang === 'ar') {
+            doc.dir = 'rtl';
+            doc.lang = 'ar';
+        } else {
+            doc.dir = 'ltr';
+            doc.lang = lang;
+        }
         loadPosts(lang);
     }
+
     function loadPosts(lang) {
         const container = document.getElementById('postsContainer');
+        container.innerHTML = '<p style="text-align:center;">Fetching articles...</p>';
+        
         database.ref('posts').orderByChild('lang').equalTo(lang).on('value', (snapshot) => {
             container.innerHTML = '';
             if (!snapshot.exists()) {
-                container.innerHTML = '<p style="text-align:center;">No articles available.</p>';
+                container.innerHTML = `<p style="text-align:center;">No articles published in this language yet.</p>`;
                 return;
             }
+            let posts = [];
             snapshot.forEach((child) => {
-                const post = child.val();
+                posts.unshift(child.val()); // عرض الأحدث أولاً
+            });
+            
+            posts.forEach((post) => {
                 container.innerHTML += `
                     <article class="post-card">
                         <span class="tag">${post.category}</span>
                         <h2>${post.title}</h2>
-                        ${post.imageUrl ? `<img src="${post.imageUrl}">` : ''}
+                        ${post.imageUrl ? `<img src="${post.imageUrl}" alt="article image">` : ''}
                         <p style="white-space: pre-wrap;">${post.content}</p>
-                        <div style="font-size: 0.85em; color: #999; border-top: 1px solid #eee; padding-top: 10px;">📅 ${post.date}</div>
-                    </article>`;
+                        <div style="margin-top:20px; font-size: 0.85em; color: #999; border-top: 1px solid #eee; padding-top: 10px;">
+                           📅 Published on: ${post.date}
+                        </div>
+                    </article>
+                `;
             });
         });
     }
+    // تحميل المقالات بالإنجليزية افتراضياً
     loadPosts('en');
 </script>
 </body>
