@@ -3,38 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HK Global Blog - Secure Admin</title>
+    <title>HK Global Blog - Secure Admin Panel</title>
+    
+    <!-- Firebase Legacy SDKs (Required for this setup) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <style>
-        body { font-family: sans-serif; background: #eef2f7; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef2f7; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .admin-container { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
-        h2 { color: #1a73e8; text-align: center; }
-        input, textarea, select { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        button { background: #1a73e8; color: white; border: none; padding: 15px; width: 100%; margin-top: 25px; cursor: pointer; border-radius: 10px; font-weight: bold; }
-        #adminPassword { border: 2px solid #1a73e8; }
+        h2 { color: #1a73e8; text-align: center; margin-bottom: 25px; font-size: 1.8em; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #555; }
+        input, textarea, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        
+        /* Security field highlighting */
+        #adminPassword { border: 2px solid #1a73e8; background: #f0f7ff; }
+        
+        button { background: #1a73e8; color: white; border: none; padding: 15px; width: 100%; margin-top: 25px; cursor: pointer; border-radius: 10px; font-size: 1.1em; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #1557b0; transform: translateY(-2px); }
+        .status-msg { text-align: center; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
+
 <div class="admin-container">
-    <h2>🚀 HK Editor Hub (Blog)</h2>
-    <input type="password" id="adminPassword" placeholder="Security Access Code">
-    <input type="text" id="title" placeholder="Article Title">
+    <h2>🚀 HK Editor Hub</h2>
+
+    <label style="color: #1a73e8;">🛡️ Security Access Code</label>
+    <input type="password" id="adminPassword" placeholder="Enter security code to publish...">
+    
+    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+    <label>Article Title</label>
+    <input type="text" id="title" placeholder="Enter title here...">
+
+    <label>Language</label>
     <select id="lang">
-        <option value="en">English</option>
-        <option value="sv">Svenska</button>
-        <option value="ar">العربية</option>
+        <option value="en">English (Global)</option>
+        <option value="sv">Svenska (Sweden)</option>
+        <option value="ar">Arabic (العربية)</option>
     </select>
+
+    <label>Category</label>
     <select id="category">
         <option value="Politics">Politics</option>
         <option value="Economy">Economy</option>
+        <option value="Marketing">Marketing</option>
+        <option value="Family">Lifestyle & Family</option>
     </select>
-    <input type="text" id="imageUrl" placeholder="Image Link">
-    <textarea id="content" rows="10" placeholder="Content..."></textarea>
-    <button onclick="publishArticle()">PUBLISH TO BLOG</button>
-    <div id="status" style="text-align:center; margin-top:15px; font-weight:bold;"></div>
+
+    <label>Cover Image URL</label>
+    <input type="text" id="imageUrl" placeholder="Paste image link here...">
+
+    <label>Content</label>
+    <textarea id="content" rows="10" placeholder="Write your thoughts here..."></textarea>
+
+    <button onclick="publishArticle()">PUBLISH ARTICLE</button>
+    <div id="status" class="status-msg"></div>
 </div>
+
 <script>
+    // Your updated Firebase configuration[cite: 11]
     const firebaseConfig = {
         apiKey: "AIzaSyAJDyKosoysPzOjl-9DqaZIDEg8GRPfXzQ",
         authDomain: "hk-blog-3ed96.firebaseapp.com",
@@ -43,32 +72,63 @@
         messagingSenderId: "339658398793",
         appId: "1:339658398793:web:e38a09f83fd01c2e773398",
         measurementId: "G-FSB1QBLZM7",
-        databaseURL: "https://hk-blog-3ed96-default-rtdb.firebaseio.com"
+        databaseURL: "https://hk-blog-3ed96-default-rtdb.firebaseio.com" // Crucial for publishing
     };
+
+    // Initialize Firebase[cite: 11]
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+
     function publishArticle() {
-        const pass = document.getElementById('adminPassword').value;
-        const status = document.getElementById('status');
-        if (pass !== "Sabah19920701") { alert("❌ Wrong Access Code!"); return; }
-        
         const title = document.getElementById('title').value;
+        const lang = document.getElementById('lang').value;
+        const category = document.getElementById('category').value;
+        const imageUrl = document.getElementById('imageUrl').value;
         const content = document.getElementById('content').value;
+        const enteredPassword = document.getElementById('adminPassword').value;
+        const status = document.getElementById('status');
+
+        // Your private security code[cite: 11]
+        const secureCode = "Sabah19920701";
+
+        // Security check first
+        if (enteredPassword !== secureCode) {
+            alert("❌ Access Denied: Incorrect Security Code!");
+            status.innerHTML = "Incorrect Security Code!";
+            status.style.color = "#c0392b";
+            return; 
+        }
+
         if(title && content) {
-            status.innerHTML = "Publishing...";
+            status.innerHTML = "Sending to the cloud...";
+            status.style.color = "#f39c12";
+
+            // Pushing data to Firebase Realtime Database[cite: 11, 13]
             database.ref('posts').push({
                 title: title,
-                lang: document.getElementById('lang').value,
-                category: document.getElementById('category').value,
-                imageUrl: document.getElementById('imageUrl').value,
+                lang: lang,
+                category: category,
+                imageUrl: imageUrl,
                 content: content,
                 date: new Date().toLocaleDateString('en-GB')
             }).then(() => {
-                status.innerHTML = "🎉 Done!";
+                status.innerHTML = "🎉 Article Published Successfully!";
                 status.style.color = "#27ae60";
+                
+                // Clear fields after success[cite: 11]
+                document.getElementById('title').value = '';
+                document.getElementById('content').value = '';
+                document.getElementById('imageUrl').value = '';
+                document.getElementById('adminPassword').value = '';
+            }).catch(err => {
+                status.innerHTML = "❌ Error: " + err.message;
+                status.style.color = "#c0392b";
             });
+        } else {
+            alert("Please fill in both the title and content!");
         }
     }
 </script>
+
 </body>
 </html>
