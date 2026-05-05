@@ -8,7 +8,7 @@
     <meta property="og:title" content="HK LENS - Deep Analysis">
     <meta property="og:description" content="Political and economic analysis with an independent vision.">
     <meta property="og:url" content="https://hk-lens.github.io/HK-GLOBAL-BLOG/">
-    <meta property="og:image" content="https://hk-lens.github.io/HK-GLOBAL-BLOG/cover.jpg"> <meta property="og:type" content="website">
+    <meta property="og:type" content="website">
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -39,7 +39,7 @@
         .post-content { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; animation: fadeIn 0.4s ease; }
         .post-content img { max-width: 100%; border-radius: 8px; margin-bottom: 15px; display: block; }
         
-        .share-buttons { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ddd; display: flex; gap: 10px; align-items: center; }
+        .share-buttons { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ddd; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .share-btn { padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85em; font-weight: bold; color: white; transition: 0.3s; }
         .fb-btn { background: var(--fb); }
         .wa-btn { background: var(--wa); }
@@ -150,7 +150,9 @@
             });
 
             postsArray.forEach((post) => {
-                const postUrl = encodeURIComponent(window.location.href);
+                // إنشاء رابط فريد للمقال عبر إضافة عنوانه كمعامل (Param)
+                const baseUrl = window.location.href.split('?')[0];
+                const postUrl = encodeURIComponent(baseUrl + "?article=" + encodeURIComponent(post.title));
                 const postTitle = encodeURIComponent(post.title);
                 
                 const postHTML = `
@@ -163,13 +165,15 @@
                             <span class="arrow">▼</span>
                         </div>
                         <div class="post-content">
-                            ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Image">` : ''}
+                            ${post.imageUrl ? `<img src="${post.imageUrl}" alt="${post.title}">` : ''}
                             <p style="white-space: pre-wrap;">${post.content}</p>
                             
                             <div class="share-buttons">
-                                <span style="font-size: 0.85em; color: #666;">Share / مشاركة:</span>
-                                <a href="https://www.facebook.com/sharer/sharer.php?u=${postUrl}" target="_blank" class="share-btn fb-btn">Facebook</a>
-                                <a href="https://api.whatsapp.com/send?text=${postTitle}%20${postUrl}" target="_blank" class="share-btn wa-btn">WhatsApp</a>
+                                <span style="font-size: 0.85em; color: #666;">مشاركة التحليل:</span>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=${postUrl}&quote=${postTitle}" 
+                                   target="_blank" class="share-btn fb-btn">Facebook</a>
+                                <a href="https://api.whatsapp.com/send?text=*${postTitle}*%0A${postUrl}" 
+                                   target="_blank" class="share-btn wa-btn">WhatsApp</a>
                             </div>
                         </div>
                     </article>
